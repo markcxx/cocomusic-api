@@ -1,0 +1,11 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+
+name = "cocomusic-api"
+main = "entry.py"
+
+compatibility_date = "2026-05-13"
+compatibility_flags = [ "python_workers" ]
+
+[assets]
+directory = "./app/web"
+binding = "ASSETS"
