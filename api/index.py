@@ -1,1 +1,1 @@
-from app.main import app as asgi_app
+from app.main import app
