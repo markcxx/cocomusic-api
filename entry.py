@@ -24,5 +24,4 @@ class Default(WorkerEntrypoint):
                 return Response("", status=307, headers={"Location": "/docs"})
             if url.path == "/sandbox":
                 return Response("", status=307, headers={"Location": "/playground"})
-        request_obj = getattr(request, "js_object", request)
-        return await asgi.fetch(_app, request_obj, self.env)
+        return await asgi.fetch(_app, request, self.env)
