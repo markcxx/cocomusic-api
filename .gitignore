@@ -15,3 +15,6 @@ build/
 .idea/
 .vscode/
 .trae/
+node_modules/
+.next/
+out/

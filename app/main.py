@@ -10,13 +10,10 @@ from fastapi import FastAPI
 
 from app.exception_handlers import register_exception_handlers
 from app.routers.music_router import router as music_router
-from app.routers.pages_router import router as pages_router
 
 
-def create_app(*, include_pages: bool = True) -> FastAPI:
+def create_app() -> FastAPI:
     app = FastAPI(title="CocoMusic API", docs_url="/api/docs", redoc_url="/api/redoc")
-    if include_pages:
-        app.include_router(pages_router)
     app.include_router(music_router)
     register_exception_handlers(app)
     return app

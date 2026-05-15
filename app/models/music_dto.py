@@ -14,6 +14,18 @@ class MusicPlatform(str, Enum):
     qq = "qq"
     kugou = "kugou"
     kuwo = "kuwo"
+    migu = "migu"
+
+
+class MiguQuality(str, Enum):
+    lq = "LQ"
+    pq = "PQ"
+    hq = "HQ"
+    sq = "SQ"
+    zq = "ZQ"
+    z3d = "Z3D"
+    zq24 = "ZQ24"
+    zq32 = "ZQ32"
 
 
 class PlayInfoRequest(BaseModel):
@@ -31,6 +43,7 @@ class PlayInfoData(BaseModel):
     url: HttpUrl
     link: HttpUrl | None = Field(default=None, description="原始下载链接（重定向前）")
     type: str = Field(..., min_length=1)
+    quality: str | None = Field(default=None, description="音质标识（当前仅 migu 支持，如 SQ / ZQ24）")
     platform: MusicPlatform
 
 
