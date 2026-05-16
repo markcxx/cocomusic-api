@@ -6,7 +6,7 @@ from urllib.parse import unquote, urljoin, urlparse
 
 import httpx
 
-from app.models.music_dto import MusicPlatform, PlayInfoData
+from backend.models.music_dto import MusicPlatform, PlayInfoData
 
 
 class JianbinService:

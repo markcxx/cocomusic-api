@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 
 import httpx
 
-from app.models.music_dto import MiguQuality, MusicPlatform, PlayInfoData
+from backend.models.music_dto import MiguQuality, MusicPlatform, PlayInfoData
 
 
 class MiguService:

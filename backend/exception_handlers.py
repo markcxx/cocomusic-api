@@ -4,7 +4,7 @@ import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from app.models.music_dto import SERVICE_NAME
+from backend.models.music_dto import SERVICE_NAME
 
 
 def _json_error(status_code: int, message: str) -> JSONResponse:

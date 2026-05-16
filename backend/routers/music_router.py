@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Query
 
-from app.models.music_dto import ApiResponse, MiguQuality, MusicPlatform, PlayInfoData, SERVICE_NAME
-from app.services.jianbin_service import JianbinService
-from app.services.migu_service import MiguService
+from backend.models.music_dto import ApiResponse, MiguQuality, MusicPlatform, PlayInfoData, SERVICE_NAME
+from backend.services.jianbin_service import JianbinService
+from backend.services.migu_service import MiguService
 
 
 router = APIRouter(prefix="/v1/music", tags=["music"])

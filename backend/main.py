@@ -8,8 +8,8 @@ if __package__ is None or __package__ == "":
 
 from fastapi import FastAPI
 
-from app.exception_handlers import register_exception_handlers
-from app.routers.music_router import router as music_router
+from backend.exception_handlers import register_exception_handlers
+from backend.routers.music_router import router as music_router
 
 
 def create_app() -> FastAPI:
@@ -25,7 +25,7 @@ app = create_app()
 def main() -> None:
     import uvicorn
 
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=False)
 
 
 if __name__ == "__main__":
