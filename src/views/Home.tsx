@@ -7,6 +7,7 @@ import { useRef } from 'react';
 import AnimeBackground from '../components/AnimeBackground';
 import SplitTextAnime from '../components/SplitTextAnime';
 import AnimeGrid from '../components/AnimeGrid';
+import ScrollVinyl from '../components/ScrollVinyl';
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -205,125 +206,70 @@ export default function Home() {
           <div className="w-full md:w-1/2 flex flex-col justify-center h-full relative z-10 space-y-12 pr-0 md:pr-12">
             <div>
               <h2 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-white tracking-tight mb-4 text-shadow-sm">
-                <SplitTextAnime text="三步极简接入" className="bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent" />
+                <SplitTextAnime text="你的音乐工具箱" className="bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent" />
               </h2>
-              <p className="text-lg text-zinc-600 dark:text-zinc-400">我们将复杂的全网解析逻辑封装在云端，对外只提供最纯粹的 JSON API。您的前端应用将告别繁重的加解密工作。</p>
+              <p className="text-lg text-zinc-600 dark:text-zinc-400">一套接口覆盖搜索、播放、歌词、歌单等核心场景。写自己的播放器、做歌词壁纸、搭建曲库后台——随你发挥。</p>
             </div>
-            
-            <div className="flex flex-col gap-8 relative">
-              <div className="absolute left-6 top-0 bottom-0 w-px bg-zinc-200 dark:bg-zinc-800 -z-10"></div>
-              
-              <div className="flex gap-6 items-start">
-                <motion.div 
-                  className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-sm"
-                  style={{ 
-                    borderColor: useTransform(stepsProgress, [0, 0.3], ["#e4e4e7", "#06b6d4"]),
-                    color: useTransform(stepsProgress, [0, 0.3], ["#a1a1aa", "#06b6d4"])
-                  }}
-                >
-                  <span className="font-mono font-bold text-lg">1</span>
-                </motion.div>
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">构造请求</h3>
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">确定你要解析的歌曲 ID （或全网统一 Hash），指定目标平台。如：<code className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-cyan-600 dark:text-cyan-400">platform=qq</code>。</p>
-                </div>
-              </div>
 
-              <div className="flex gap-6 items-start">
-                <motion.div 
-                  className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-sm"
-                  style={{ 
-                    borderColor: useTransform(stepsProgress, [0.3, 0.6], ["#e4e4e7", "#3b82f6"]),
-                    color: useTransform(stepsProgress, [0.3, 0.6], ["#a1a1aa", "#3b82f6"])
-                  }}
-                >
-                  <span className="font-mono font-bold text-lg">2</span>
-                </motion.div>
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">获取链接</h3>
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">调用云端解析接口，云端系统将自动突破来源检查，返回真实可播放的 MP3/FLAC <code className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-blue-600 dark:text-blue-400">cdn_url</code> 节点。</p>
+            <div className="flex flex-col gap-6 relative">
+              <motion.div
+                className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm"
+                style={{
+                  opacity: useTransform(stepsProgress, [0, 0.2], [0, 1]),
+                  y: useTransform(stepsProgress, [0, 0.2], [40, 0]),
+                  scale: useTransform(stepsProgress, [0, 0.2], [0.95, 1])
+                }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-50 dark:bg-cyan-900/20 flex items-center justify-center">
+                    <Search className="w-5 h-5 text-cyan-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">搜索 & 发现</h3>
                 </div>
-              </div>
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">跨平台关键词搜索，返回歌曲、专辑、歌手的结构化数据。支持 QQ、酷狗、酷我、咪咕等多源聚合。</p>
+                <div className="mt-3 font-mono text-xs text-cyan-600 dark:text-cyan-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1.5 rounded-lg inline-block">GET /v1/search?q=周杰伦&platform=qq</div>
+              </motion.div>
 
-              <div className="flex gap-6 items-start">
-                <motion.div 
-                  className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center shrink-0 shadow-sm"
-                  style={{ 
-                    borderColor: useTransform(stepsProgress, [0.6, 1], ["#e4e4e7", "#8b5cf6"]),
-                    color: useTransform(stepsProgress, [0.6, 1], ["#a1a1aa", "#8b5cf6"])
-                  }}
-                >
-                  <span className="font-mono font-bold text-lg">3</span>
-                </motion.div>
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">流式播放</h3>
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">直接将获取到的直链绑定给 HTML5 <code className="text-xs bg-zinc-100 dark:bg-zinc-800 px-1 py-0.5 rounded text-purple-600 dark:text-purple-400">{'<audio>'}</code> 标签或是您的原生 AVAudioPlayer 进行播放。</p>
+              <motion.div
+                className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm"
+                style={{
+                  opacity: useTransform(stepsProgress, [0.2, 0.45], [0, 1]),
+                  y: useTransform(stepsProgress, [0.2, 0.45], [40, 0]),
+                  scale: useTransform(stepsProgress, [0.2, 0.45], [0.95, 1])
+                }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                    <PlayCircle className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">播放直链</h3>
                 </div>
-              </div>
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">传入歌曲 ID 即可拿到真实可播放的音频 URL，支持 MP3/FLAC 多码率。直接丢给 Audio 标签就能放。</p>
+                <div className="mt-3 font-mono text-xs text-blue-600 dark:text-blue-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1.5 rounded-lg inline-block">GET /v1/song/url?id=001yS0N3&platform=qq</div>
+              </motion.div>
+
+              <motion.div
+                className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm"
+                style={{
+                  opacity: useTransform(stepsProgress, [0.45, 0.7], [0, 1]),
+                  y: useTransform(stepsProgress, [0.45, 0.7], [40, 0]),
+                  scale: useTransform(stepsProgress, [0.45, 0.7], [0.95, 1])
+                }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">歌词 & 歌单</h3>
+                </div>
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">LRC 时间轴歌词、翻译歌词一并返回。歌单接口支持分页拉取全部曲目，适合批量场景。</p>
+                <div className="mt-3 font-mono text-xs text-purple-600 dark:text-purple-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1.5 rounded-lg inline-block">GET /v1/lyric?id=001yS0N3&platform=qq</div>
+              </motion.div>
             </div>
           </div>
-          
-          <div className="hidden md:flex w-1/2 justify-center items-center h-full relative z-10">
-            {/* Visualizer for steps */}
-             <motion.div 
-               className="w-full max-w-sm aspect-square bg-[#0a0a0c]/80 backdrop-blur-2xl border border-zinc-800/80 rounded-full shadow-2xl flex items-center justify-center relative overflow-hidden"
-               style={{
-                 boxShadow: useTransform(stepsProgress, [0, 0.5, 1], [
-                   "0 0 40px rgba(6,182,212,0.1)",
-                   "0 0 60px rgba(59,130,246,0.2)",
-                   "0 0 80px rgba(139,92,246,0.3)"
-                 ])
-               }}
-             >
-               <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-               
-               {/* Animated rings based on scroll progress */}
-               <motion.div 
-                 className="absolute inset-4 rounded-full border border-dashed border-cyan-500/30"
-                 style={{ rotate: useTransform(stepsProgress, [0, 1], [0, 180]) }}
-               ></motion.div>
-               <motion.div 
-                 className="absolute inset-12 rounded-full border border-blue-500/20"
-                 style={{ scale: useTransform(stepsProgress, [0, 0.5, 1], [0.8, 1, 0.9]) }}
-               ></motion.div>
-               
-               <div className="relative text-zinc-300 font-mono text-center flex flex-col items-center">
-                 <motion.div
-                   style={{
-                     opacity: useTransform(stepsProgress, [0, 0.3], [1, 0]),
-                     y: useTransform(stepsProgress, [0, 0.3], [0, -20]),
-                     display: useTransform(stepsProgress, p => p > 0.4 ? 'none' : 'block')
-                   }}
-                 >
-                   <Search className="w-10 h-10 mb-2 mx-auto text-cyan-400" />
-                   <div className="text-xs">GET /api/v1/...</div>
-                 </motion.div>
-                 
-                 <motion.div
-                   className="absolute top-0"
-                   style={{
-                     opacity: useTransform(stepsProgress, [0.2, 0.5, 0.8], [0, 1, 0]),
-                     scale: useTransform(stepsProgress, [0.3, 0.5], [0.8, 1]),
-                     display: useTransform(stepsProgress, p => (p < 0.2 || p > 0.8) ? 'none' : 'block')
-                   }}
-                 >
-                   <Layers className="w-10 h-10 mb-2 mx-auto text-blue-400" />
-                   <div className="text-xs">Cloud Resolving...</div>
-                 </motion.div>
 
-                 <motion.div
-                   className="absolute top-0"
-                   style={{
-                     opacity: useTransform(stepsProgress, [0.7, 1], [0, 1]),
-                     scale: useTransform(stepsProgress, [0.7, 1], [0.8, 1]),
-                     display: useTransform(stepsProgress, p => p < 0.6 ? 'none' : 'block')
-                   }}
-                 >
-                   <PlayCircle className="w-10 h-10 mb-2 mx-auto text-purple-400" />
-                   <div className="text-xs text-green-400">200 OK</div>
-                 </motion.div>
-               </div>
-             </motion.div>
+          <div className="hidden md:flex w-1/2 justify-center items-center h-full relative z-10">
+            <ScrollVinyl progress={stepsProgress} />
           </div>
         </div>
       </section>
