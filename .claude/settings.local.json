@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p d:/Code/cocomusic-api/src/lib/services d:/Code/cocomusic-api/src/lib/models)"
+    ],
+    "additionalDirectories": [
+      "d:\\Code\\cocomusic-api\\src\\lib"
+    ]
+  }
+}

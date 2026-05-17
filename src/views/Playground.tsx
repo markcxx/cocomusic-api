@@ -21,9 +21,8 @@ const qualities = [
   { value: 'LQ', label: 'LQ (标准音质)' },
   { value: 'PQ', label: 'PQ (较高音质)' },
   { value: 'HQ', label: 'HQ (高音质)' },
-  { value: 'SQ', label: 'SQ (无损音质)' },
-  { value: 'ZQ24', label: 'ZQ24 (24bit 至臻音质)' },
-  { value: 'ZQ32', label: 'ZQ32 (32bit 至臻音质)' },
+  { value: 'SQ', label: 'SQ (无损FLAC)' },
+  { value: 'ZQ', label: 'ZQ (至臻音质)' },
 ];
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -187,6 +186,7 @@ export default function Playground() {
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!audioRef.current || !progressRef.current) return;
+    if (!isFinite(audioRef.current.duration) || audioRef.current.duration === 0) return;
     const rect = progressRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const percentage = x / rect.width;
