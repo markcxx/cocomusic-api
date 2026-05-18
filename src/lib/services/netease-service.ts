@@ -10,7 +10,7 @@ export class NeteaseCrypto {
     const digest = createHash("md5").update(message, "utf-8").digest("hex");
     const dataStr = `${uri}-36cd479b6b5-${text}-36cd479b6b5-${digest}`;
 
-    const cipher = createCipheriv("aes-128-ecb", Buffer.from(this.EAPI_KEY, "utf-8"), null);
+    const cipher = createCipheriv("aes-128-ecb", Buffer.from(this.EAPI_KEY, "utf-8"), Buffer.alloc(0));
     cipher.setAutoPadding(true);
     const encrypted = Buffer.concat([
       cipher.update(dataStr, "utf-8"),
@@ -21,7 +21,7 @@ export class NeteaseCrypto {
   }
 
   static eapiResDecrypt(data: Buffer): Record<string, unknown> {
-    const decipher = createDecipheriv("aes-128-ecb", Buffer.from(this.EAPI_KEY, "utf-8"), null);
+    const decipher = createDecipheriv("aes-128-ecb", Buffer.from(this.EAPI_KEY, "utf-8"), Buffer.alloc(0));
     decipher.setAutoPadding(true);
     const decrypted = Buffer.concat([
       decipher.update(data),
