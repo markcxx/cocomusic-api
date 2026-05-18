@@ -1,6 +1,6 @@
 export const SERVICE_NAME = "coco音乐";
 
-export type MusicPlatform = "qq" | "kugou" | "kuwo" | "migu";
+export type MusicPlatform = "qq" | "kugou" | "kuwo" | "migu" | "netease";
 
 export type MiguQuality =
   | "LQ"
@@ -8,6 +8,13 @@ export type MiguQuality =
   | "HQ"
   | "SQ"
   | "ZQ"
+
+export type NeteaseQuality =
+  | "standard"
+  | "higher"
+  | "exhigh"
+  | "lossless"
+  | "hires"
 
 export interface PlayInfoData {
   songid: string;
@@ -21,6 +28,8 @@ export interface PlayInfoData {
   type: string;
   quality?: string | null;
   platform: MusicPlatform;
+  size?: number | null;
+  bitrate?: number | null;
 }
 
 export interface ApiResponse<T> {
