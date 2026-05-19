@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import type { ApiResponse, MusicPlatform } from "@/lib/models/music";
 import { SERVICE_NAME } from "@/lib/models/music";
 import { NeteaseServicePool } from "@/lib/services/netease-service";
+import { getNeteaseMusicUList } from "@/lib/env/netease-music-u";
 
 interface SongDetail {
   songid: string;
@@ -40,10 +41,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const musicUList = (process.env.NETEASE_MUSIC_U || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const musicUList = getNeteaseMusicUList();
 
     if (musicUList.length === 0) {
       return errorResponse(500, "Netease service not configured");

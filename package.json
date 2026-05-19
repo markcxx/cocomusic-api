@@ -6,7 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "split:musicu": "node scripts/split-netease-music-u.js"
   },
   "dependencies": {
     "animejs": "^3.2.2",

@@ -10,6 +10,7 @@ import { SERVICE_NAME } from "@/lib/models/music";
 import { MiguService } from "@/lib/services/migu-service";
 import { JianbinService } from "@/lib/services/jianbin-service";
 import { NeteaseServicePool } from "@/lib/services/netease-service";
+import { getNeteaseMusicUList } from "@/lib/env/netease-music-u";
 
 const VALID_PLATFORMS: MusicPlatform[] = ["qq", "kugou", "kuwo", "migu", "netease"];
 const VALID_MIGU_QUALITIES: MiguQuality[] = [
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
       const service = new MiguService();
       data = await service.getPlayInfo(songId, quality as MiguQuality | null);
     } else if (platform === "netease") {
-      const musicUList = (process.env.NETEASE_MUSIC_U || "").split(",").map(s => s.trim()).filter(Boolean);
+      const musicUList = getNeteaseMusicUList();
       if (musicUList.length === 0) {
         return errorResponse(500, "Netease service not configured");
       }
