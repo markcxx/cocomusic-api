@@ -12,11 +12,11 @@ const endpoints = [
 ];
 
 const platforms = [
-  { id: 'qq', label: 'QQ' },
-  { id: 'kugou', label: 'Kugou' },
-  { id: 'kuwo', label: 'Kuwo' },
-  { id: 'migu', label: 'Migu' },
-  { id: 'netease', label: 'Netease' },
+  { id: 'qq', label: 'QQ 音乐' },
+  { id: 'kugou', label: '酷狗音乐' },
+  { id: 'kuwo', label: '酷我音乐' },
+  { id: 'migu', label: '咪咕音乐' },
+  { id: 'netease', label: '网易云音乐' },
 ];
 
 const miguQualities = [
@@ -52,7 +52,8 @@ export default function Playground() {
   const [miguQuality, setMiguQuality] = useState('SQ');
   const [neteaseQuality, setNeteaseQuality] = useState('exhigh');
   const [songId, setSongId] = useState('001yS0N33yPm1B');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
+  const [isQualityDropdownOpen, setIsQualityDropdownOpen] = useState(false);
   const [response, setResponse] = useState<string>('');
   const [status, setStatus] = useState<RequestStatus>('idle');
   const [requestTime, setRequestTime] = useState<number>(0);
@@ -64,14 +65,18 @@ export default function Playground() {
   const [volume, setVolume] = useState(0.7);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const platformDropdownRef = useRef<HTMLDivElement>(null);
+  const qualityDropdownRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+      if (platformDropdownRef.current && !platformDropdownRef.current.contains(event.target as Node)) {
+        setIsPlatformDropdownOpen(false);
+      }
+      if (qualityDropdownRef.current && !qualityDropdownRef.current.contains(event.target as Node)) {
+        setIsQualityDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -166,6 +171,10 @@ export default function Playground() {
     } catch { /* ignore */ }
     return null;
   }, [response, songId]);
+
+  const getPlatformLabel = useCallback(() => {
+    return platforms.find((p) => p.id === platform)?.label || platform;
+  }, [platform]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -394,25 +403,51 @@ export default function Playground() {
 
             <div className="flex flex-col gap-3">
               <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">目标平台 <span className="text-red-500">*</span></label>
-              {endpoint === 'detail' && platform !== 'netease' && (
+              {endpoint === 'detail' && !['qq', 'netease'].includes(platform) && (
                 <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-                  ⚠️ 歌曲详情接口目前仅支持网易云平台
+                  ⚠️ 歌曲详情接口目前支持 QQ 音乐、网易云音乐
                 </p>
               )}
-              <div className="grid grid-cols-2 gap-2">
-                {platforms.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setPlatform(p.id)}
-                    className={`relative py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-all ${
-                      platform === p.id
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-md'
-                        : 'bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
+              <div ref={platformDropdownRef} className="relative">
+                <button
+                  onClick={() => setIsPlatformDropdownOpen(!isPlatformDropdownOpen)}
+                  className="w-full flex items-center justify-between bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-2.5 px-4 text-sm text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
+                >
+                  <span className="truncate">
+                    {platforms.find((p) => p.id === platform)?.label}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${isPlatformDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {isPlatformDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute top-[calc(100%+8px)] left-0 right-0 p-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl z-50 flex flex-col gap-1 origin-top"
+                    >
+                      {platforms.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            setPlatform(p.id);
+                            setIsPlatformDropdownOpen(false);
+                          }}
+                          className={`text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex justify-between items-center ${
+                            platform === p.id
+                              ? 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-medium'
+                              : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100'
+                          }`}
+                        >
+                          {p.label}
+                          {platform === p.id && <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
@@ -421,9 +456,9 @@ export default function Playground() {
                 <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
                   目标音质 <span className="text-zinc-400 font-normal ml-1">({platform === 'migu' ? '咪咕' : '网易云'}平台专用)</span>
                 </label>
-                <div ref={dropdownRef} className="relative">
+                <div ref={qualityDropdownRef} className="relative">
                   <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    onClick={() => setIsQualityDropdownOpen(!isQualityDropdownOpen)}
                     className="w-full flex items-center justify-between bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-2.5 px-4 text-sm text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500"
                   >
                     <span className="truncate">
@@ -432,11 +467,11 @@ export default function Playground() {
                         : neteaseQualities.find(q => q.value === neteaseQuality)?.label
                       }
                     </span>
-                    <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${isQualityDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   <AnimatePresence>
-                    {isDropdownOpen && (
+                    {isQualityDropdownOpen && (
                       <motion.div
                         initial={{ opacity: 0, y: -5, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -453,7 +488,7 @@ export default function Playground() {
                               } else {
                                 setNeteaseQuality(q.value);
                               }
-                              setIsDropdownOpen(false);
+                              setIsQualityDropdownOpen(false);
                             }}
                             className={`text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex justify-between items-center ${
                               (platform === 'migu' ? miguQuality : neteaseQuality) === q.value
@@ -475,7 +510,7 @@ export default function Playground() {
             <div className="mt-auto pt-8">
               <button
                 onClick={handleSendRequest}
-                disabled={status === 'loading' || !songId.trim() || (endpoint === 'detail' && platform !== 'netease')}
+                disabled={status === 'loading' || !songId.trim() || (endpoint === 'detail' && !['qq', 'netease'].includes(platform))}
                 className="w-full bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-500 dark:hover:bg-cyan-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
               >
                 {status === 'loading' ? (
@@ -515,27 +550,29 @@ export default function Playground() {
 
           {/* Tab Navigation */}
           {response && status !== 'loading' && (
-            <div className="flex items-center gap-1 px-4 pt-3 pb-0">
+            <div className="px-4 pt-3 pb-0">
+              <div className="inline-flex items-center gap-1 p-1 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
               <button
                 onClick={() => setResponseTab('card')}
-                className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-all cursor-pointer ${
+                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                   responseTab === 'card'
-                    ? 'bg-white dark:bg-zinc-900 text-cyan-600 dark:text-cyan-400 border border-b-0 border-zinc-200 dark:border-zinc-800'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
+                    ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                 }`}
               >
                 卡片视图
               </button>
               <button
                 onClick={() => setResponseTab('json')}
-                className={`px-4 py-2 text-xs font-semibold rounded-t-lg transition-all cursor-pointer ${
+                className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                   responseTab === 'json'
-                    ? 'bg-white dark:bg-zinc-900 text-cyan-600 dark:text-cyan-400 border border-b-0 border-zinc-200 dark:border-zinc-800'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
+                    ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                 }`}
               >
                 JSON 视图
               </button>
+              </div>
             </div>
           )}
 
@@ -599,14 +636,14 @@ export default function Playground() {
                     };
 
                     return (
-                      <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                      <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
                         {/* Cover Art - Top */}
                         <div className="relative w-full h-64 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                           {songData.cover ? (
                             <img
                               src={songData.cover}
                               alt={songData.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
@@ -635,7 +672,7 @@ export default function Playground() {
                             )}
                             <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
                               <span className="font-semibold">平台:</span>
-                              <span className="capitalize">{platform}</span>
+                              <span>{getPlatformLabel()}</span>
                             </div>
                           </div>
                         </div>
@@ -645,14 +682,14 @@ export default function Playground() {
 
                   // 播放链接视图（含播放器）
                   return (
-                    <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-row">
+                    <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-row">
                       {/* Cover Art - Left Side */}
                       <div className="relative w-48 min-h-48 shrink-0 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                         {songData.cover ? (
                           <img
                             src={songData.cover}
                             alt={songData.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
