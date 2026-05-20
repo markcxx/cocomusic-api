@@ -18,15 +18,18 @@ export default function DetailEndpointPanel({
   onPlatformChange,
   onSongIdChange,
 }: Props) {
+  const platformRuleText =
+    platform === "qq"
+      ? "当前平台为 QQ 音乐，歌曲详情这里请使用数字歌曲 ID，不是 `mid`。"
+      : "当前平台为网易云音乐，请输入数字歌曲 ID。";
+
   return (
     <>
       <div className="flex flex-col gap-3">
         <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
           歌曲 ID <span className="text-red-500">*</span>
         </label>
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
-          当前详情接口支持 QQ 音乐与网易云音乐，其中 QQ 音乐这里请使用数字歌曲 ID，不是 `mid`。
-        </p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500">{platformRuleText}</p>
         <div className="relative">
           <Hash className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <input

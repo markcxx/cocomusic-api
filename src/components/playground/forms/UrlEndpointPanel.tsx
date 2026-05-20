@@ -27,15 +27,24 @@ export default function UrlEndpointPanel({
   onMiguQualityChange,
   onNeteaseQualityChange,
 }: Props) {
+  const platformRuleText =
+    platform === "qq"
+      ? "当前平台为 QQ 音乐，原链解析请使用歌曲 `mid`。"
+      : platform === "kugou"
+        ? "当前平台为酷狗音乐，请输入歌曲 `hash`。"
+        : platform === "kuwo"
+          ? "当前平台为酷我音乐，请输入歌曲 ID。"
+          : platform === "migu"
+            ? "当前平台为咪咕音乐，请输入 `contentId_copyrightId`。"
+            : "当前平台为网易云音乐，请输入数字歌曲 ID。";
+
   return (
     <>
       <div className="flex flex-col gap-3">
         <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
           歌曲 ID / Hash <span className="text-red-500">*</span>
         </label>
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
-          QQ 音乐原链解析请使用歌曲 `mid`；酷狗/酷我使用歌曲 ID；咪咕需使用 `contentId_copyrightId`；网易云使用数字歌曲 ID。
-        </p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500">{platformRuleText}</p>
         <div className="relative">
           <Hash className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <input
