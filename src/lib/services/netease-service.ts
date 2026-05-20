@@ -162,6 +162,22 @@ export class NeteaseService {
     }
   }
 
+  async searchSongs(
+    keywords: string,
+    limit = 20,
+    offset = 0
+  ): Promise<Record<string, unknown>> {
+    const data = {
+      s: keywords,
+      type: 1,
+      limit,
+      offset,
+      total: true,
+    };
+
+    return await this.makeRequest("/api/cloudsearch/pc", data);
+  }
+
   async getSongUrl(
     songIds: number[],
     level: NeteaseQuality = "exhigh",
@@ -299,5 +315,17 @@ export class NeteaseServicePool {
 
     console.log(`[Netease] 账号 [${index}] 请求成功`);
     return result;
+  }
+
+  async searchSongs(
+    keywords: string,
+    limit = 20,
+    offset = 0
+  ): Promise<Record<string, unknown>> {
+    const { cookie, index, suffix } = this.getRandomMusicU();
+    console.log(`[Netease] 使用账号 [${index}] (后缀: ...${suffix}) 请求搜索 ${keywords}`);
+
+    const service = new NeteaseService(cookie);
+    return await service.searchSongs(keywords, limit, offset);
   }
 }
