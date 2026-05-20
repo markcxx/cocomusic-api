@@ -30,9 +30,11 @@ export default function SearchEndpointPanel({
     <>
       <div className="flex flex-col gap-3">
         <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-          搜索关键词 <span className="text-red-500">*</span>
+          搜索关键词<span className="text-red-500">*</span>
         </label>
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">当前已接入 QQ 音乐和网易云音乐的歌曲搜索。</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+          当前已接入 QQ 音乐、网易云音乐和咪咕音乐的歌曲搜索。
+        </p>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <input
@@ -51,7 +53,7 @@ export default function SearchEndpointPanel({
           <input
             type="number"
             min="1"
-            max="30"
+            max="50"
             value={limit}
             onChange={(event) => onLimitChange(event.target.value)}
             className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 shadow-sm outline-none transition-all focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"

@@ -1,5 +1,20 @@
 import type { MiguQuality, MusicPlatform, PlayInfoData } from "../models/music";
 
+interface MiguSearchSong {
+  id: string;
+  name: string | null;
+  artist: string | null;
+  album: string | null;
+  cover: string | null;
+  duration: number | null;
+}
+
+interface MiguSearchResult {
+  songs: MiguSearchSong[];
+  total: number;
+  hasMore: boolean;
+}
+
 export class MiguService {
   private timeout: number;
   private headers: Record<string, string>;
@@ -100,6 +115,35 @@ export class MiguService {
     return `https://c.musicapp.migu.cn/v1.0/content/search_all.do?${params}`;
   }
 
+  private parseDuration(value: unknown): number | null {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+      return value;
+    }
+    if (typeof value !== "string") return null;
+
+    const text = value.trim();
+    if (!text) return null;
+
+    if (/^\d+$/.test(text)) {
+      const num = parseInt(text, 10);
+      return Number.isFinite(num) && num > 0 ? num : null;
+    }
+
+    const parts = text.split(":").map((part) => parseInt(part, 10));
+    if (parts.some((part) => Number.isNaN(part) || part < 0)) {
+      return null;
+    }
+
+    if (parts.length === 2) {
+      return (parts[0] * 60 + parts[1]) * 1000;
+    }
+    if (parts.length === 3) {
+      return (parts[0] * 3600 + parts[1] * 60 + parts[2]) * 1000;
+    }
+
+    return null;
+  }
+
   private buildListenUrl(
     contentId: string,
     copyrightId: string,
@@ -153,6 +197,30 @@ export class MiguService {
       (item): item is Record<string, unknown> =>
         item !== null && typeof item === "object"
     );
+  }
+
+  private extractTotal(payload: unknown, fallback: number): number {
+    if (!payload || typeof payload !== "object") return fallback;
+    const songResult = (payload as Record<string, unknown>).songResultData;
+    if (!songResult || typeof songResult !== "object") return fallback;
+
+    const candidates = [
+      (songResult as Record<string, unknown>).totalCount,
+      (songResult as Record<string, unknown>).total,
+      (songResult as Record<string, unknown>).count,
+      (songResult as Record<string, unknown>).resultCount,
+    ];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === "number" && Number.isFinite(candidate)) {
+        return candidate;
+      }
+      if (typeof candidate === "string" && /^\d+$/.test(candidate.trim())) {
+        return parseInt(candidate, 10);
+      }
+    }
+
+    return fallback;
   }
 
   private pickSongForMeta(
@@ -225,6 +293,32 @@ export class MiguService {
     }
 
     return [title, artist, album, cover];
+  }
+
+  private buildSongId(song: Record<string, unknown>): string {
+    const contentId = this.safeStr(song.contentId);
+    const copyrightId = this.safeStr(song.copyrightId);
+    if (!contentId || !copyrightId) return "";
+    return `${contentId}_${copyrightId}`;
+  }
+
+  private mapSearchSong(song: Record<string, unknown>): MiguSearchSong | null {
+    const id = this.buildSongId(song);
+    if (!id) return null;
+
+    const [name, artist, album, cover] = this.extractMeta(song);
+
+    return {
+      id,
+      name,
+      artist,
+      album,
+      cover,
+      duration:
+        this.parseDuration(song.duration) ??
+        this.parseDuration(song.length) ??
+        this.parseDuration(song.songLength),
+    };
   }
 
   private extractMetaFromListenData(
@@ -303,6 +397,45 @@ export class MiguService {
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  async searchSongs(
+    keywords: string,
+    limit?: number,
+    offset?: number
+  ): Promise<MiguSearchResult> {
+    const q = (keywords || "").trim();
+    if (!q) {
+      throw new Error("Invalid or missing keyword");
+    }
+
+    const normalizedLimit = !Number.isFinite(limit)
+      ? 20
+      : Math.min(Math.max(Math.floor(limit as number), 1), 50);
+    const normalizedOffset = !Number.isFinite(offset)
+      ? 0
+      : Math.max(Math.floor(offset as number), 0);
+
+    const pageNo = Math.floor(normalizedOffset / normalizedLimit) + 1;
+    const pageOffset = normalizedOffset % normalizedLimit;
+    const requestSize = Math.min(normalizedLimit + pageOffset, 50);
+
+    const payload = await this.getJson(
+      this.buildSearchUrl(q, pageNo, requestSize)
+    );
+    const rawSongs = this.extractSongList(payload);
+    const total = this.extractTotal(payload, rawSongs.length);
+
+    const songs = rawSongs
+      .slice(pageOffset, pageOffset + normalizedLimit)
+      .map((song) => this.mapSearchSong(song))
+      .filter((song): song is MiguSearchSong => song !== null);
+
+    return {
+      songs,
+      total,
+      hasMore: normalizedOffset + songs.length < total,
+    };
   }
 
   async getPlayInfo(

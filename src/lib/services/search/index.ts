@@ -1,9 +1,10 @@
 import type { MusicPlatform } from "@/lib/models/music";
+import { MiguService } from "@/lib/services/migu-service";
 import { neteaseSearchSongs } from "@/lib/services/platforms/netease/module/search";
 import { qqSearchSongs } from "@/lib/services/platforms/qqmusic/module/search";
 import type { SearchData, SearchSongItem } from "@/lib/services/search/types";
 
-export const SEARCH_PLATFORMS: MusicPlatform[] = ["qq", "netease"];
+export const SEARCH_PLATFORMS: MusicPlatform[] = ["qq", "netease", "migu"];
 
 function normalizeLimit(limit?: number): number {
   if (!Number.isFinite(limit)) return 20;
@@ -66,6 +67,20 @@ export async function searchByPlatform(
 
   if (platform === "netease") {
     const result = await neteaseSearchSongs(q, l, o);
+    return {
+      keyword: q,
+      platform,
+      total: result.total,
+      limit: l,
+      offset: o,
+      hasMore: result.hasMore,
+      items: normalizeItems(result.songs, platform),
+    };
+  }
+
+  if (platform === "migu") {
+    const service = new MiguService();
+    const result = await service.searchSongs(q, l, o);
     return {
       keyword: q,
       platform,

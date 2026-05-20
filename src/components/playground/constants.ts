@@ -38,7 +38,7 @@ export const platforms: PlatformOption[] = [
 ];
 
 export const detailPlatforms: MusicPlatform[] = ["qq", "netease"];
-export const searchPlatforms: MusicPlatform[] = ["qq", "netease"];
+export const searchPlatforms: MusicPlatform[] = ["qq", "netease", "migu"];
 
 export const miguQualities = [
   { value: "LQ", label: "LQ 标准音质" },
