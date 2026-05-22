@@ -15,6 +15,12 @@ export const endpointConfigs: EndpointConfig[] = [
     available: true,
   },
   {
+    id: "lyric",
+    label: "歌词获取",
+    desc: "获取 LRC 时间轴歌词、翻译歌词、罗马音与逐字歌词。",
+    available: true,
+  },
+  {
     id: "search",
     label: "综合搜索",
     desc: "按平台搜索歌曲，并在调试台中直接浏览标准音乐列表。",
@@ -38,6 +44,7 @@ export const platforms: PlatformOption[] = [
 ];
 
 export const detailPlatforms: MusicPlatform[] = ["qq", "netease"];
+export const lyricPlatforms: MusicPlatform[] = ["qq", "netease"];
 export const searchPlatforms: MusicPlatform[] = ["qq", "netease", "migu"];
 
 export const miguQualities = [

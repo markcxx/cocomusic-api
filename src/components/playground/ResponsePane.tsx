@@ -4,6 +4,7 @@ import type { ChangeEvent, MouseEvent, RefObject } from "react";
 import { Check, CheckCircle2, Copy, Loader2, Send, XCircle } from "lucide-react";
 import type { SearchSongItem } from "@/lib/services/search/types";
 import SearchResultsTable from "@/components/playground/response/SearchResultsTable";
+import LyricResponseCard from "@/components/playground/response/LyricResponseCard";
 import SongResponseCard from "@/components/playground/response/SongResponseCard";
 import type { RequestStatus, ResponseTab, VisualResponse } from "@/components/playground/types";
 
@@ -27,7 +28,7 @@ type Props = {
   onCopyJson: () => void;
   onTabChange: (value: ResponseTab) => void;
   onCopySongId: (songId: string) => void;
-  onUseSearchItem: (item: SearchSongItem, endpoint: "url" | "detail") => void;
+  onUseSearchItem: (item: SearchSongItem, endpoint: "url" | "detail" | "lyric") => void;
   onProgressClick: (event: MouseEvent<HTMLDivElement>) => void;
   onPlayPause: () => void;
   onDownload: () => void;
@@ -166,7 +167,7 @@ export default function ResponsePane({
         ) : null}
 
         {response && status !== "loading" && responseTab === "card" ? (
-          <div className="h-full min-h-0">
+          <div className="h-full min-h-0 overflow-hidden">
             {visualResponse.kind === "search" ? (
               <SearchResultsTable
                 data={visualResponse.data}
@@ -176,6 +177,10 @@ export default function ResponsePane({
                 onCopySongId={onCopySongId}
                 onUseSearchItem={onUseSearchItem}
               />
+            ) : visualResponse.kind === "lyric" ? (
+              <div className="absolute inset-4 overflow-hidden md:inset-6">
+                <LyricResponseCard data={visualResponse.data} getPlatformLabel={getPlatformLabel} />
+              </div>
             ) : (
               <div className="flex h-full items-center justify-center overflow-auto">
                 <SongResponseCard

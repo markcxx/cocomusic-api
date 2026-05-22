@@ -32,6 +32,22 @@ export interface PlayInfoData {
   bitrate?: number | null;
 }
 
+export interface LyricBlock {
+  version: number;
+  lyric: string;
+}
+
+export interface LyricData {
+  songid: string;
+  platform: MusicPlatform;
+  lrc: LyricBlock;
+  tlyric?: LyricBlock | null;
+  klyric?: LyricBlock | null;
+  romalrc?: LyricBlock | null;
+  yrc?: LyricBlock | null;
+  ytlrc?: LyricBlock | null;
+}
+
 export interface ApiResponse<T> {
   code: number;
   message: string;

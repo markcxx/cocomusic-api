@@ -6,7 +6,7 @@ import type { MusicPlatform } from "@/lib/models/music";
 import type { EndpointId, SongData } from "@/components/playground/types";
 
 type Props = {
-  endpoint: Exclude<EndpointId, "search">;
+  endpoint: Exclude<EndpointId, "search" | "lyric">;
   platform: MusicPlatform;
   songData: SongData | null;
   progress: number;

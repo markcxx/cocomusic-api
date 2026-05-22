@@ -1,7 +1,8 @@
 import type { MusicPlatform } from "@/lib/models/music";
+import type { LyricData } from "@/lib/models/music";
 import type { SearchData } from "@/lib/services/search/types";
 
-export type EndpointId = "url" | "detail" | "search";
+export type EndpointId = "url" | "detail" | "lyric" | "search";
 export type RequestStatus = "idle" | "loading" | "success" | "error";
 export type ResponseTab = "card" | "json";
 
@@ -46,8 +47,13 @@ export type VisualResponse =
       data: SearchData | null;
     }
   | {
+      kind: "lyric";
+      data: LyricData | null;
+      platform: MusicPlatform;
+    }
+  | {
       kind: "song";
       data: SongData | null;
       platform: MusicPlatform;
-      endpoint: Exclude<EndpointId, "search">;
+      endpoint: Exclude<EndpointId, "search" | "lyric">;
     };

@@ -1,4 +1,4 @@
-import type { MusicPlatform, PlayInfoData, NeteaseQuality } from "../models/music";
+import type { LyricBlock, LyricData, MusicPlatform, PlayInfoData, NeteaseQuality } from "../models/music";
 import { createHash, createCipheriv, createDecipheriv } from "crypto";
 
 export class NeteaseCrypto {
@@ -192,6 +192,85 @@ export class NeteaseService {
     return await this.makeRequest("/api/song/enhance/player/url/v1", data);
   }
 
+  async getLyric(songId: string): Promise<LyricData> {
+    const id = parseInt(songId, 10);
+    if (isNaN(id)) {
+      throw new Error("Invalid id");
+    }
+
+    const data = {
+      id,
+      cp: false,
+      tv: 0,
+      lv: 0,
+      rv: 0,
+      kv: 0,
+      yv: 0,
+      ytv: 0,
+      yrv: 0,
+    };
+
+    const uri = "/api/song/lyric/v1";
+    const headers = {
+      "User-Agent": NeteaseService.DEFAULT_UA,
+      "Cookie": this.buildCookieHeader(),
+      "Content-Type": "application/x-www-form-urlencoded"
+    };
+    const eapiData = {
+      header: this.buildRequestHeader(),
+      e_r: true,
+      ...data
+    };
+    const encrypted = NeteaseCrypto.eapiEncrypt(uri, eapiData);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeout);
+    let raw: Record<string, unknown>;
+
+    try {
+      const response = await fetch("https://interface3.music.163.com/eapi/song/lyric/v1", {
+        method: "POST",
+        headers,
+        body: new URLSearchParams(encrypted).toString(),
+        signal: controller.signal
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        raw = await response.json();
+      } else {
+        const buffer = await response.arrayBuffer();
+        raw = NeteaseCrypto.eapiResDecrypt(Buffer.from(buffer));
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("Request timeout");
+      }
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+
+    const wrap = (value: unknown): LyricBlock | null => {
+      if (!value || typeof value !== "object") return null;
+      const record = value as Record<string, unknown>;
+      return {
+        version: typeof record.version === "number" ? record.version : 0,
+        lyric: typeof record.lyric === "string" ? record.lyric : "",
+      };
+    };
+
+    return {
+      songid: songId,
+      platform: "netease",
+      lrc: wrap(raw.lrc) || { version: 0, lyric: "" },
+      tlyric: wrap(raw.tlyric),
+      klyric: wrap(raw.klyric),
+      romalrc: wrap(raw.romalrc),
+      yrc: wrap(raw.yrc),
+      ytlrc: wrap(raw.ytlrc),
+    };
+  }
+
   async getPlayInfo(
     songId: string,
     level?: NeteaseQuality | null
@@ -327,5 +406,13 @@ export class NeteaseServicePool {
 
     const service = new NeteaseService(cookie);
     return await service.searchSongs(keywords, limit, offset);
+  }
+
+  async getLyric(songId: string): Promise<LyricData> {
+    const { cookie, index, suffix } = this.getRandomMusicU();
+    console.log(`[Netease] 使用账号 [${index}] (后缀: ...${suffix}) 请求歌词 ${songId}`);
+
+    const service = new NeteaseService(cookie);
+    return await service.getLyric(songId);
   }
 }

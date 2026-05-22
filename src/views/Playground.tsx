@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, MouseEvent } from "react";
 import { Loader2, Send } from "lucide-react";
-import type { ApiResponse, MusicPlatform } from "@/lib/models/music";
+import type { ApiResponse, LyricData, MusicPlatform } from "@/lib/models/music";
 import type { SearchData, SearchSongItem } from "@/lib/services/search/types";
-import { detailPlatforms, endpointConfigs, searchPlatforms } from "@/components/playground/constants";
+import { detailPlatforms, endpointConfigs, lyricPlatforms, searchPlatforms } from "@/components/playground/constants";
 import EndpointSidebar from "@/components/playground/EndpointSidebar";
 import UrlEndpointPanel from "@/components/playground/forms/UrlEndpointPanel";
 import DetailEndpointPanel from "@/components/playground/forms/DetailEndpointPanel";
+import LyricEndpointPanel from "@/components/playground/forms/LyricEndpointPanel";
 import SearchEndpointPanel from "@/components/playground/forms/SearchEndpointPanel";
 import ResponsePane from "@/components/playground/ResponsePane";
 import type { EndpointId, RequestStatus, ResponseTab, SongData, VisualResponse } from "@/components/playground/types";
@@ -69,6 +70,12 @@ function extractSearchData(data: unknown): SearchData | null {
   return Array.isArray(record.items) ? record : null;
 }
 
+function extractLyricData(data: unknown): LyricData | null {
+  if (!data || typeof data !== "object") return null;
+  const record = data as LyricData;
+  return record.lrc && typeof record.lrc.lyric === "string" ? record : null;
+}
+
 function highlightJson(json: string) {
   return json
     .replace(/"(.*?)"(?=\s*:)/g, '<span class="font-medium text-pink-600 dark:text-pink-400">"$1"</span>')
@@ -111,6 +118,12 @@ export default function Playground() {
           kind: "search",
           data: parsedResponse?.code === 200 ? extractSearchData(parsedResponse.data) : null,
         }
+      : endpoint === "lyric"
+        ? {
+            kind: "lyric",
+            data: parsedResponse?.code === 200 ? extractLyricData(parsedResponse.data) : null,
+            platform,
+          }
       : {
           kind: "song",
           data: parsedResponse?.code === 200 ? extractSongData(parsedResponse.data, songId) : null,
@@ -120,6 +133,9 @@ export default function Playground() {
 
   useEffect(() => {
     if (endpoint === "detail" && !detailPlatforms.includes(platform)) {
+      setPlatform("qq");
+    }
+    if (endpoint === "lyric" && !lyricPlatforms.includes(platform)) {
       setPlatform("qq");
     }
     if (endpoint === "search" && !searchPlatforms.includes(platform)) {
@@ -171,6 +187,10 @@ export default function Playground() {
       return `/v1/music/song_detail?platform=${platform}&id=${encodeURIComponent(songId.trim())}`;
     }
 
+    if (endpoint === "lyric") {
+      return `/v1/lyric?platform=${platform}&id=${encodeURIComponent(songId.trim())}`;
+    }
+
     return `/v1/search?platform=${platform}&q=${encodeURIComponent(keyword.trim())}&limit=${encodeURIComponent(limit || "12")}&offset=${encodeURIComponent(offset || "0")}`;
   }
 
@@ -180,6 +200,9 @@ export default function Playground() {
     }
     if (endpoint === "search") {
       return keyword.trim().length > 0 && searchPlatforms.includes(platform);
+    }
+    if (endpoint === "lyric") {
+      return songId.trim().length > 0 && lyricPlatforms.includes(platform);
     }
     return songId.trim().length > 0;
   }
@@ -236,10 +259,10 @@ export default function Playground() {
     window.setTimeout(() => setCopiedSongId(""), 2000);
   }
 
-  function handleUseSearchItem(item: SearchSongItem, nextEndpoint: "url" | "detail") {
+  function handleUseSearchItem(item: SearchSongItem, nextEndpoint: "url" | "detail" | "lyric") {
     setPlatform(item.platform);
     const nextSongId =
-      nextEndpoint === "url" && item.platform === "qq" && item.mid
+      (nextEndpoint === "url" || nextEndpoint === "lyric") && item.platform === "qq" && item.mid
         ? item.mid
         : item.songid;
     setSongId(nextSongId);
@@ -400,6 +423,15 @@ export default function Playground() {
                 onKeywordChange={setKeyword}
                 onLimitChange={setLimit}
                 onOffsetChange={setOffset}
+              />
+            ) : null}
+
+            {endpoint === "lyric" ? (
+              <LyricEndpointPanel
+                platform={platform}
+                songId={songId}
+                onPlatformChange={setPlatform}
+                onSongIdChange={setSongId}
               />
             ) : null}
 

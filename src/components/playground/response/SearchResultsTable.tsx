@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Copy, FileText, Link2, Volume2 } from "lucide-react";
+import { Copy, FileText, Link2, Music2, Volume2 } from "lucide-react";
+import { lyricPlatforms } from "@/components/playground/constants";
 import type { SearchData, SearchSongItem } from "@/lib/services/search/types";
 
 type Props = {
@@ -10,7 +11,7 @@ type Props = {
   getPlatformLabel: (platform: SearchSongItem["platform"]) => string;
   formatDuration: (ms: number | null | undefined) => string;
   onCopySongId: (songId: string) => void;
-  onUseSearchItem: (item: SearchSongItem, endpoint: "url" | "detail") => void;
+  onUseSearchItem: (item: SearchSongItem, endpoint: "url" | "detail" | "lyric") => void;
 };
 
 function ActionButton({
@@ -71,7 +72,7 @@ export default function SearchResultsTable({
         </div>
       </div>
 
-      <div className="grid grid-cols-[72px_minmax(220px,2.2fr)_minmax(140px,1.2fr)_minmax(170px,1.4fr)_80px_124px] gap-3 border-b border-zinc-200 bg-zinc-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/70">
+      <div className="grid grid-cols-[72px_minmax(220px,2.2fr)_minmax(140px,1.2fr)_minmax(170px,1.4fr)_80px_168px] gap-3 border-b border-zinc-200 bg-zinc-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/70">
         <div>封面</div>
         <div>歌曲名</div>
         <div>歌手</div>
@@ -89,7 +90,7 @@ export default function SearchResultsTable({
           data.items.map((item, index) => (
             <div
               key={`${item.platform}-${item.songid}-${index}`}
-              className="grid grid-cols-[72px_minmax(220px,2.2fr)_minmax(140px,1.2fr)_minmax(170px,1.4fr)_80px_124px] items-center gap-3 border-b border-zinc-100 px-5 py-3 transition-colors hover:bg-cyan-50/60 dark:border-zinc-800 dark:hover:bg-cyan-950/20"
+              className="grid grid-cols-[72px_minmax(220px,2.2fr)_minmax(140px,1.2fr)_minmax(170px,1.4fr)_80px_168px] items-center gap-3 border-b border-zinc-100 px-5 py-3 transition-colors hover:bg-cyan-50/60 dark:border-zinc-800 dark:hover:bg-cyan-950/20"
             >
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
@@ -125,6 +126,13 @@ export default function SearchResultsTable({
                   label="歌曲详情"
                   onClick={() => onUseSearchItem(item, "detail")}
                 />
+                {lyricPlatforms.includes(item.platform) ? (
+                  <ActionButton
+                    icon={<Music2 className="h-4 w-4" />}
+                    label="歌词获取"
+                    onClick={() => onUseSearchItem(item, "lyric")}
+                  />
+                ) : null}
                 <ActionButton
                   icon={<Copy className="h-4 w-4" />}
                   label={copiedSongId === item.songid ? "已复制" : "复制 ID"}

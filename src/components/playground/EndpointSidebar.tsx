@@ -1,12 +1,13 @@
 "use client";
 
-import { FileText, Link as LinkIcon, Search } from "lucide-react";
+import { FileText, Link as LinkIcon, Music2, Search } from "lucide-react";
 import { endpointConfigs, extensionEndpoints } from "@/components/playground/constants";
 import type { EndpointId } from "@/components/playground/types";
 
 const icons = {
   url: <LinkIcon className="h-4 w-4" />,
   detail: <FileText className="h-4 w-4" />,
+  lyric: <Music2 className="h-4 w-4" />,
   search: <Search className="h-4 w-4" />,
 };
 
