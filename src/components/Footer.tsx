@@ -1,4 +1,14 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname === "/playground") {
+    return null;
+  }
+
   return (
     <footer className="border-t border-zinc-200 dark:border-zinc-900 bg-zinc-50 dark:bg-zinc-950/50 py-8 px-6 md:px-10 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors">
       <div className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">

@@ -378,11 +378,11 @@ export default function Playground() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-80px)] flex-1 overflow-hidden bg-white dark:bg-zinc-950">
+    <div className="flex h-[calc(100dvh-80px)] max-h-[calc(100dvh-80px)] flex-1 overflow-hidden bg-white dark:bg-zinc-950">
       <EndpointSidebar endpoint={endpoint} onChange={setEndpoint} />
 
       <main className="flex flex-1 min-h-0 flex-col overflow-hidden lg:flex-row">
-        <div className="w-full overflow-y-auto border-r border-zinc-200 bg-white lg:w-[40%] dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="h-full min-h-0 w-full overflow-y-auto border-r border-zinc-200 bg-white lg:w-[40%] dark:border-zinc-800 dark:bg-zinc-950">
           <div className="flex flex-col gap-8 p-6 md:p-8">
             <div>
               <h2 className="mb-2 text-2xl font-bold text-zinc-950 dark:text-zinc-50">{currentEndpoint.label}</h2>

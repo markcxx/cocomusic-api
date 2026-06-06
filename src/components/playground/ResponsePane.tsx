@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChangeEvent, MouseEvent, RefObject } from "react";
-import { Check, CheckCircle2, Copy, Loader2, Send, XCircle } from "lucide-react";
+import { Check, Copy, Loader2, Send } from "lucide-react";
 import type { SearchSongItem } from "@/lib/services/search/types";
 import SearchResultsTable from "@/components/playground/response/SearchResultsTable";
 import LyricResponseCard from "@/components/playground/response/LyricResponseCard";
@@ -70,7 +70,7 @@ export default function ResponsePane({
   highlightJson,
 }: Props) {
   return (
-    <div className="flex w-full min-h-0 flex-col overflow-hidden bg-zinc-50 lg:w-[60%] dark:bg-[#0a0a0c]">
+    <div className="flex h-full w-full min-h-0 flex-col overflow-hidden bg-zinc-50 lg:w-[60%] dark:bg-[#0a0a0c]">
       <div className="border-b border-zinc-200 bg-white/50 p-4 dark:border-zinc-800/80 dark:bg-zinc-900/30">
         <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
           {status === "loading" ? <span className="h-2 w-2 animate-pulse rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" /> : null}
@@ -135,39 +135,33 @@ export default function ResponsePane({
         ) : null}
 
         {response && status !== "loading" && responseTab === "json" ? (
-          <>
-            <div className="absolute right-6 top-6 z-10 flex items-center gap-2">
-              {status === "success" ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : null}
-              {status === "error" ? <XCircle className="h-4 w-4 text-red-500" /> : null}
+          <div className="group/json relative h-full min-h-0 overflow-hidden rounded-2xl">
+            <div className="absolute right-3 top-3 z-10">
               <button
                 onClick={onCopyJson}
-                className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-600 shadow-sm transition-colors hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                aria-label={copiedJson ? "已复制 JSON" : "复制 JSON"}
+                title={copiedJson ? "已复制 JSON" : "复制 JSON"}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/92 text-zinc-500 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-150 group-hover/json:opacity-100 group-focus-within/json:opacity-100 hover:bg-zinc-100 hover:text-zinc-900 focus:opacity-100 focus:outline-none dark:bg-zinc-900/92 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
               >
                 {copiedJson ? (
-                  <>
-                    <Check className="h-3 w-3 text-green-500" />
-                    已复制
-                  </>
+                  <Check className="h-4 w-4 text-green-500" />
                 ) : (
-                  <>
-                    <Copy className="h-3 w-3" />
-                    Copy JSON
-                  </>
+                  <Copy className="h-4 w-4" />
                 )}
               </button>
             </div>
 
-            <div className="h-full overflow-auto">
+            <div className="h-full min-h-0 overflow-auto overscroll-contain rounded-2xl">
               <pre
                 className="font-mono text-xs leading-loose text-zinc-700 dark:text-zinc-300 md:text-[13px]"
                 dangerouslySetInnerHTML={{ __html: highlightJson(response) }}
               />
             </div>
-          </>
+          </div>
         ) : null}
 
         {response && status !== "loading" && responseTab === "card" ? (
-          <div className="h-full min-h-0 overflow-hidden">
+          <div className="h-full min-h-0 overflow-hidden overscroll-contain">
             {visualResponse.kind === "search" ? (
               <SearchResultsTable
                 data={visualResponse.data}
@@ -178,29 +172,31 @@ export default function ResponsePane({
                 onUseSearchItem={onUseSearchItem}
               />
             ) : visualResponse.kind === "lyric" ? (
-              <div className="absolute inset-4 overflow-hidden md:inset-6">
+              <div className="h-full min-h-0 overflow-hidden">
                 <LyricResponseCard data={visualResponse.data} getPlatformLabel={getPlatformLabel} />
               </div>
             ) : (
-              <div className="flex h-full items-center justify-center overflow-auto">
-                <SongResponseCard
-                  endpoint={visualResponse.endpoint}
-                  platform={visualResponse.platform}
-                  songData={visualResponse.data}
-                  progress={progress}
-                  currentTime={currentTime}
-                  duration={duration}
-                  volume={volume}
-                  isPlaying={isPlaying}
-                  progressRef={progressRef}
-                  getPlatformLabel={getPlatformLabel}
-                  formatTime={formatTime}
-                  formatDuration={formatDuration}
-                  onProgressClick={onProgressClick}
-                  onPlayPause={onPlayPause}
-                  onDownload={onDownload}
-                  onVolumeChange={onVolumeChange}
-                />
+              <div className="h-full min-h-0 overflow-auto overscroll-contain">
+                <div className="flex min-h-full items-center justify-center">
+                  <SongResponseCard
+                    endpoint={visualResponse.endpoint}
+                    platform={visualResponse.platform}
+                    songData={visualResponse.data}
+                    progress={progress}
+                    currentTime={currentTime}
+                    duration={duration}
+                    volume={volume}
+                    isPlaying={isPlaying}
+                    progressRef={progressRef}
+                    getPlatformLabel={getPlatformLabel}
+                    formatTime={formatTime}
+                    formatDuration={formatDuration}
+                    onProgressClick={onProgressClick}
+                    onPlayPause={onPlayPause}
+                    onDownload={onDownload}
+                    onVolumeChange={onVolumeChange}
+                  />
+                </div>
               </div>
             )}
           </div>
