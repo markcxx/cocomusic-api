@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, MouseEvent } from "react";
-import { Loader2, Send } from "lucide-react";
+import { GripVertical, Loader2, PanelLeft, Send } from "lucide-react";
 import type { ApiResponse, LyricData, MusicPlatform } from "@/lib/models/music";
 import type { SearchData, SearchSongItem } from "@/lib/services/search/types";
 import { detailPlatforms, endpointConfigs, lyricPlatforms, searchPlatforms } from "@/components/playground/constants";
@@ -106,9 +106,13 @@ export default function Playground() {
   const [volume, setVolume] = useState(0.7);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [leftPaneWidth, setLeftPaneWidth] = useState(40);
+  const [isResizing, setIsResizing] = useState(false);
 
   const progressRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const layoutRef = useRef<HTMLDivElement | null>(null);
 
   const currentEndpoint = endpointConfigs.find((item) => item.id === endpoint) ?? endpointConfigs[0];
   const parsedResponse = parseApiResponse(response);
@@ -162,6 +166,30 @@ export default function Playground() {
     setCurrentTime(0);
     setDuration(0);
   }, [response, platform, endpoint]);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    function handlePointerMove(event: PointerEvent) {
+      if (!layoutRef.current) return;
+      const rect = layoutRef.current.getBoundingClientRect();
+      const nextWidth = ((event.clientX - rect.left) / rect.width) * 100;
+      const clampedWidth = Math.min(62, Math.max(32, nextWidth));
+      setLeftPaneWidth(clampedWidth);
+    }
+
+    function handlePointerUp() {
+      setIsResizing(false);
+    }
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [isResizing]);
 
   function getPlatformLabel(value: MusicPlatform) {
     if (value === "qq") return "QQ 音乐";
@@ -379,14 +407,40 @@ export default function Playground() {
 
   return (
     <div className="flex h-[calc(100dvh-80px)] max-h-[calc(100dvh-80px)] flex-1 overflow-hidden bg-white dark:bg-zinc-950">
-      <EndpointSidebar endpoint={endpoint} onChange={setEndpoint} />
+      <EndpointSidebar
+        endpoint={endpoint}
+        isOpen={isSidebarOpen}
+        onChange={setEndpoint}
+        onToggle={() => setIsSidebarOpen((value) => !value)}
+      />
 
-      <main className="flex flex-1 min-h-0 flex-col overflow-hidden lg:flex-row">
-        <div className="h-full min-h-0 w-full overflow-y-auto border-r border-zinc-200 bg-white lg:w-[40%] dark:border-zinc-800 dark:bg-zinc-950">
+      <main
+        ref={layoutRef}
+        className={`flex flex-1 min-h-0 flex-col overflow-hidden lg:flex-row ${isResizing ? "select-none" : ""}`}
+      >
+        <div
+          className="h-full min-h-0 w-full overflow-y-auto border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:w-auto lg:flex-none"
+          style={{ width: `clamp(420px, ${leftPaneWidth}%, 920px)` }}
+        >
           <div className="flex flex-col gap-8 p-6 md:p-8">
-            <div>
-              <h2 className="mb-2 text-2xl font-bold text-zinc-950 dark:text-zinc-50">{currentEndpoint.label}</h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">{currentEndpoint.desc}</p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-600 dark:text-cyan-400">
+                  Playground Panel
+                </p>
+                <h2 className="text-2xl font-bold text-zinc-950 dark:text-zinc-50">{currentEndpoint.label}</h2>
+                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{currentEndpoint.desc}</p>
+              </div>
+              {!isSidebarOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                >
+                  <PanelLeft className="h-4 w-4" />
+                  展开接口导航
+                </button>
+              ) : null}
             </div>
 
             <div className="h-px w-full bg-zinc-100 dark:bg-zinc-800/50" />
@@ -457,6 +511,21 @@ export default function Playground() {
           </div>
         </div>
 
+        <div className="group relative hidden h-full w-4 shrink-0 items-center justify-center bg-zinc-50/80 lg:flex dark:bg-zinc-950/80">
+          <button
+            type="button"
+            aria-label="拖动调整左右宽度"
+            onPointerDown={(event) => {
+              event.preventDefault();
+              setIsResizing(true);
+            }}
+            className="flex h-24 w-2 cursor-col-resize items-center justify-center rounded-full bg-zinc-200/80 text-zinc-400 transition-colors hover:bg-zinc-300 hover:text-zinc-600 dark:bg-zinc-800 dark:text-zinc-500 dark:hover:bg-zinc-700 dark:hover:text-zinc-300"
+          >
+            <GripVertical className="h-4 w-4" />
+          </button>
+          <div className="pointer-events-none absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-zinc-200 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-zinc-800" />
+        </div>
+
         <ResponsePane
           status={status}
           requestTime={requestTime}
@@ -488,6 +557,7 @@ export default function Playground() {
           highlightJson={highlightJson}
         />
       </main>
+      {isResizing ? <div className="fixed inset-0 z-[90] cursor-col-resize" /> : null}
     </div>
   );
 }
