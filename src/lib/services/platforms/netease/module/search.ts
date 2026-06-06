@@ -1,5 +1,4 @@
-import { getNeteaseMusicUList } from "@/lib/env/netease-music-u";
-import { NeteaseServicePool } from "@/lib/services/netease-service";
+import { NeteaseService } from "@/lib/services/netease-service";
 
 interface NeteaseSearchSong {
   id?: unknown;
@@ -43,13 +42,10 @@ export async function neteaseSearchSongs(
   const q = (keywords || "").trim();
   if (!q) throw new Error("Invalid or missing keyword");
 
-  const musicUList = getNeteaseMusicUList();
-  if (musicUList.length === 0) throw new Error("Netease service not configured");
-
   const l = normalizeLimit(limit);
   const o = normalizeOffset(offset);
 
-  const service = new NeteaseServicePool(musicUList);
+  const service = new NeteaseService("");
   const raw = await service.searchSongs(q, l, o);
   const result = raw.result as Record<string, unknown> | undefined;
   const list = Array.isArray(result?.songs) ? (result?.songs as NeteaseSearchSong[]) : [];
@@ -90,4 +86,3 @@ export async function neteaseSearchSongs(
     hasMore: o + songs.length < total,
   };
 }
-

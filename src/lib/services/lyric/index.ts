@@ -1,6 +1,5 @@
 import type { LyricData, MusicPlatform } from "@/lib/models/music";
-import { getNeteaseMusicUList } from "@/lib/env/netease-music-u";
-import { NeteaseServicePool } from "@/lib/services/netease-service";
+import { NeteaseService } from "@/lib/services/netease-service";
 import { qqLyric } from "@/lib/services/platforms/qqmusic/module/lyric";
 
 export const LYRIC_PLATFORMS: MusicPlatform[] = ["qq", "netease"];
@@ -17,10 +16,7 @@ export async function getLyricByPlatform(
   }
 
   if (platform === "netease") {
-    const musicUList = getNeteaseMusicUList();
-    if (musicUList.length === 0) throw new Error("Netease service not configured");
-
-    const service = new NeteaseServicePool(musicUList);
+    const service = new NeteaseService("");
     return await service.getLyric(id);
   }
 
